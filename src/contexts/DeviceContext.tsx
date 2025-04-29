@@ -1,7 +1,11 @@
-
 import React, { createContext, useState, useContext, ReactNode, useEffect, useCallback } from "react";
 import { Device, ApiResponse, DeviceType, Schedule } from "@/types";
 import { toast } from "sonner";
+import { 
+  toggleDeviceOnNodeMCU, 
+  setDeviceScheduleOnNodeMCU,
+  removeDeviceScheduleOnNodeMCU
+} from "@/services/nodeService";
 
 interface DeviceContextType {
   devices: Device[];
@@ -68,23 +72,16 @@ export const DeviceProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         const device = devices[deviceIndex];
         const newStatus = !device.isOn;
         
-        // Call API to update device state
-        const response = await mockApiCall("/api/device/toggle", {
-          deviceId: id,
-          state: newStatus,
-        });
+        // Call NodeMCU API to update device state
+        await toggleDeviceOnNodeMCU(id, newStatus);
         
-        if (response.success) {
-          const updatedDevices = [...devices];
-          updatedDevices[deviceIndex] = {
-            ...device,
-            isOn: newStatus,
-          };
-          setDevices(updatedDevices);
-          toast.success(`${device.name} telah ${newStatus ? "dinyalakan" : "dimatikan"}`);
-        } else {
-          toast.error(`Gagal mengubah status ${device.name}`);
-        }
+        const updatedDevices = [...devices];
+        updatedDevices[deviceIndex] = {
+          ...device,
+          isOn: newStatus,
+        };
+        setDevices(updatedDevices);
+        toast.success(`${device.name} telah ${newStatus ? "dinyalakan" : "dimatikan"}`);
       }
     } catch (error) {
       console.error("Error toggling device:", error);
@@ -102,24 +99,17 @@ export const DeviceProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       if (deviceIndex !== -1) {
         const device = devices[deviceIndex];
         
-        // Call API to set device schedule
-        const response = await mockApiCall("/api/device/schedule", {
-          deviceId: id,
-          schedule,
-        });
+        // Call NodeMCU API to set device schedule
+        await setDeviceScheduleOnNodeMCU(id, schedule);
         
-        if (response.success) {
-          const updatedDevices = [...devices];
-          updatedDevices[deviceIndex] = {
-            ...device,
-            hasSchedule: true,
-            schedule,
-          };
-          setDevices(updatedDevices);
-          toast.success(`Jadwal untuk ${device.name} telah diatur`);
-        } else {
-          toast.error(`Gagal mengatur jadwal untuk ${device.name}`);
-        }
+        const updatedDevices = [...devices];
+        updatedDevices[deviceIndex] = {
+          ...device,
+          hasSchedule: true,
+          schedule,
+        };
+        setDevices(updatedDevices);
+        toast.success(`Jadwal untuk ${device.name} telah diatur`);
       }
     } catch (error) {
       console.error("Error setting device schedule:", error);
@@ -137,23 +127,17 @@ export const DeviceProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       if (deviceIndex !== -1) {
         const device = devices[deviceIndex];
         
-        // Call API to remove device schedule
-        const response = await mockApiCall("/api/device/remove-schedule", {
-          deviceId: id,
-        });
+        // Call NodeMCU API to remove device schedule
+        await removeDeviceScheduleOnNodeMCU(id);
         
-        if (response.success) {
-          const updatedDevices = [...devices];
-          updatedDevices[deviceIndex] = {
-            ...device,
-            hasSchedule: false,
-            schedule: undefined,
-          };
-          setDevices(updatedDevices);
-          toast.success(`Jadwal untuk ${device.name} telah dihapus`);
-        } else {
-          toast.error(`Gagal menghapus jadwal untuk ${device.name}`);
-        }
+        const updatedDevices = [...devices];
+        updatedDevices[deviceIndex] = {
+          ...device,
+          hasSchedule: false,
+          schedule: undefined,
+        };
+        setDevices(updatedDevices);
+        toast.success(`Jadwal untuk ${device.name} telah dihapus`);
       }
     } catch (error) {
       console.error("Error removing device schedule:", error);
