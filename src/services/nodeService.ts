@@ -3,7 +3,7 @@
 import { Schedule } from "@/types";
 
 // NodeMCU IP address - this should be configurable in a real app
-const NODE_MCU_IP = "192.168.1.100";
+const NODE_MCU_IP = "192.168.1.7";
 
 // Map device IDs to NodeMCU endpoint names
 const deviceEndpointMap = {

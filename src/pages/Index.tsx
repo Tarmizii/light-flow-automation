@@ -8,7 +8,7 @@ import { WifiIcon, WifiOff } from "lucide-react";
 
 const Index = () => {
   const [isConnected, setIsConnected] = useState(true);
-  const nodeMcuIp = "192.168.1.100";
+  const nodeMcuIp = "192.168.1.7";
 
   // Function to check NodeMCU connection
   const checkConnection = async () => {
